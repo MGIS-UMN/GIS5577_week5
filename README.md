@@ -9,9 +9,12 @@ After this lecture you should practice on your own loading datasets into the dat
 * Using the command line
 
 ## Repo Metadata
-### us_cities_coordinates is in WGS84 projection 4326. You can find data in the classroom database: cities_coordinate_wgs84
-### states.shp in WGS84 projection 4326. You can find data in the classroom database: states
-### us_cities.shp in project UTM 26915. You can find data in the classroom database: us_cities_prj
+### us_cities_coordinates.csv
+This dataset is in WGS84 projection 4326. You can find data in the classroom database: cities_coordinate_wgs84
+### states.shp 
+This dataset is in WGS84 projection 4326. You can find data in the classroom database: states
+### us_cities.shp
+This dataset is in a projected coordinate system UTM 26915. You can find data in the classroom database: us_cities_prj
 
 
 
