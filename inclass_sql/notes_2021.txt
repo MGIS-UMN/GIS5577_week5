@@ -1,0 +1,185 @@
+Spatial/temporal functions begin as “ST_”
+Shapefiles include
+.dbf file = attribute data
+.prj file = projection data
+Get familiar with projections and their EPSG codes
+
+Geometry vs Geography
+Both use Polygons, Polylines, Points
+Geometry is based on a flat surface 2D - cartesian plane
+Geography is  based on a sphere 3D or 4D - spheroid earth
+Can convert between the two - 
+
+If data comes in with no projection it is default in EPSG:4326
+
+
+Projection Info
+Spatial Ref Table in PgAdmin
+Spatial Reference table is just a table - can add projections
+MODIS data not on spatial ref table
+Projection table is updated by community, which will overwrite any inserts, updates, deletes, etc. that you made on the table
+Epsg.org
+http://spatialreference.org/ref/epsg/
+Spatial reference insert statement option for each epsg
+BE VERY CAREFUL INSERTING PROJECTIONS - YOU CAN OVERWRITE OTHER PROJECTIONS OR ADD DUPLICATES WITH INCORRECT DATA
+
+
+Create point from Coordinates
+SELECT ST_Point(x coord, y coord);
+SELECT ST_Point(-91.3232,42.1212);
+No coordinate system described, need to add one
+SELECT ST_setSRID (ST_Point (x coord, y coord), EPSG);
+SELECT ST_setSRID (ST_Point (-91.3232, 42.1212),  4326);
+Click “eye” on return table to see map with point
+
+
+SELECT ST_setSRID(ST_Point(638606.781480715, 4664593.59308721), 26915);
+Does not have geometry view because not in lat/long
+Transform to Lat/Long with ST_Transform
+SELECT ST_Transform(ST_setSRID(ST_Point(638606.781480715, 4664593.59308721), 26915), 4326);
+
+
+Create point from Text
+SELECT ST_GeomFromText('POINT(-71.064544 42.28787), 4326');
+Notice the single quotation marks before POINT and after the EPSG 4326
+
+
+
+
+
+
+
+
+SELECT ST_Transform(ST_SetSRID(ST_Point(4664593.59308721, 638606.781480715),26195),4326) as geom
+-- made a mistake 
+SELECT ST_Transform(ST_SetSRID(ST_Point(638606.781480715, 4664593.59308721),26915),4326) as geom
+
+ST_GeomFromText and ST_AsText
+SELECT ST_GeomFromText('POINT(-71.064544 42.28787)');
+-- everything in the function is text
+With xvalue as
+(
+SELECT -71.064544 as x
+)
+SELECT ST_GeomFromText('POINT(-71.064544 42.28787)', 4326)
+ST_AsText is the reverse of ST_GeomFromText. Use  ST_GeomFromText to convert to a PostGIS geometry from ST_AsText
+ST_AsText converts a value of geometry format into its WKT representation as a string
+
+
+Create coordinates from temp table called coordinates
+With coordinates as
+(
+SELECT -71.064544 as x, 42.28787 as y, 4326 as myproj
+	-- This represents a table of GPS records
+)
+SELECT  ST_SETSRID(ST_Point(x,y),4326) as geom,
+-- ST_GeomFromText('POINT(-71.064544 42.28787)');
+ST_GeomFromText('POINT(' || x || ' ' || y || ')',myproj) as geom2
+FROM coordinates
+Concatenate x and y with space between them from table “coordinates”
+
+
+
+
+
+
+\COPY us_cities FROM 'C:\git\GIS5577_week5\us_cities_coordinates.csv' WITH CSV HEADER;
+
+SELECT ST_SETSRID(ST_Point(x,y),4326) as geom
+From us_cities
+
+While in cmd line prompt, go to folder with psql.exe and type shp2pgsql for info on how to import shapefile into psql
+
+shp2pgsql -s 4326 -I C:\git\GIS5577_week5\states.shp states 
+
+
+----- All the code from today -----
+
+SELECT *
+from spatial_ref_sys
+WHERE srid in (4326)
+
+
+SELECT ST_SetSRID(ST_Point(-91.3232,42.1212),4326)
+-- needs to know the SRID 
+
+SELECT ST_Point(638606.781480715, 4664593.59308721)
+-- 1st time we had no SRID can't find it on the map
+SELECT ST_SetSRID(ST_Point(638606.781480715, 4664593.59308721),26195) as geom
+
+SELECT ST_Transform(ST_SetSRID(ST_Point(4664593.59308721, 638606.781480715),26195),4326) as geom
+-- made a mistake 
+SELECT ST_Transform(ST_SetSRID(ST_Point(638606.781480715, 4664593.59308721),26915),4326) as geom
+
+
+SELECT ST_GeomFromText('POINT(-71.064544 42.28787)');
+-- everything in the function is text
+
+With coordinates as
+(
+SELECT -71.064544 as x, 42.28787 as y, 4326 as myproj
+	-- This represents a table of GPS records
+)
+SELECT  ST_SETSRID(ST_Point(x,y),4326) as geom,
+-- ST_GeomFromText('POINT(-71.064544 42.28787)');
+ST_GeomFromText('POINT(' || x || ' ' || y || ')',myproj) as geom2
+FROM coordinates
+
+---- Loading Cities CSV
+
+CREATE TABLE us_cities(
+gid integer,
+x double precision,
+y double precision,
+geomtext text	
+);
+
+
+-- this is the goal
+SELECT ST_SETSRID(ST_Point(x,y),4326) as geom
+-- we have geometry but its not permanent
+SELECT ST_SETSRID(ST_Point(x,y),4326) as geom
+From us_cities
+
+Alter Table us_cities ADD COLUMN geom geometry;
+-- Add column
+UPDATE us_cities
+SET geom = ST_SETSRID(ST_Point(x,y),4326);
+
+SELECT *
+FROM geometry_columns
+
+
+
+
+
+
+select *
+from states
+
+
+-- SELECT ST_GeomFromTExt('POINT(-71.064544 42.28787)', 4326)
+
+
+SELECT ST_SetSRID(ST_Point(-91.3232,42.1212),4326)
+
+-- POINT(638606.781480715 4664593.59308721)
+
+
+SELECT ST_AsText(ST_Transform(ST_SetSRID(ST_Point(-91.3232,42.1212),4326), 26915))
+
+
+
+
+
+
+
+INSERT into spatial_ref_sys (srid, auth_name, auth_srid, proj4text, srtext) values ( 96842, 'sr-org', 6842, '+proj=sinu +lon_0=0 +x_0=0 +y_0=0 +a=6371007.181 +b=6371007.181 +units=m +no_defs ', 'PROJCS["Sinusoidal",GEOGCS["GCS_Undefined",DATUM["Undefined",SPHEROID["User_Defined_Spheroid",6371007.181,0.0]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Sinusoidal"],PARAMETER["False_Easting",0.0],PARAMETER["False_Northing",0.0],PARAMETER["Central_Meridian",0.0],UNIT["Meter",1.0]]');
+
+
+shp2pgsql -s 4326 -I C:\git\GIS5577_week5\states.shp states | psql -h 129.114.17.71 -d classroom -U david
+
+shp2pgsql -s 4326 -I C:\git\GIS5577_week5\states.shp states > c:\work\test1.sql
+
+psql -h 129.114.17.71 -d classroom -U david -f c:\work\test1.sql
+
