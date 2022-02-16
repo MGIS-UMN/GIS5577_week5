@@ -1,0 +1,171 @@
+SELECT ST_GeometryFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+
+Well KNown text
+Point(-91.3232 42.1212)
+
+GIS55577_week5_notes_2022
+
+Please do the following
+Open up your terminal/cmd prompt and find the directory that contains the psql executable. In there you should find another file called shp2pgsql.
+Open up your favorite GIS visualization tool (QGIS or ArcMap)
+We will go through them both
+Download this weeks repository
+https://github.com/MGIS-UMN/GIS5577_week5
+Zoom room
+https://umn-private.zoom.us/j/5629087280
+
+
+GRANT SELECT on ALL TABLES in SCHEMA public TO students;
+GRANT SELECT on ALL SEQUENCES in SCHEMA public TO students;
+
+
+
+https://spatialreference.org/ref/epsg/nad83-utm-zone-15n/
+
+Make a point
+SELECT ST_GeometryFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+
+44.986656, and the longitude is -93.258133.
+
+CREATE TABLE cities(
+gid smallint,
+x double precision,
+y double precision,
+geomtext text
+);
+
+
+\COPY cities from 'C:\git\GIS5577_week5\us_cities_coordinates.csv' WITH CSV HEADER;
+
+Shp2pgsql 
+
+shp2pgsql –I –s <srid> <filepath.shp> <tablename> | psql –h <host > –d <database> -p <port> -U <username>
+https://www.bostongis.com/pgsql2shp_shp2pgsql_quickguide.bqg
+
+
+Shp2pgsql
+
+-I  	Index (we always want a spatial index)
+-s   	spatial reference identifier SRID (We set this before the data is loaded)
+-W	UTF-8 / LATIN-1  - data in your attribute tables
+
+
+shp2pgsql -I -s 4326  C:\git\GIS5577_week5\states.shp us_states 
+--- Converting the shapefile
+
+psql -h spatialdb.gisandbox.org -d classroom -p 5432 -U david
+--- Load the data into the database
+
+| 	Take command 1 and run the output into command 2
+
+
+shp2pgsql -I -s 4326  C:\git\GIS5577_week5\states.shp us_states | psql -h spatialdb.gisandbox.org -d classroom -p 5432 -U david
+
+ALL notes
+
+select *
+from spatial_ref_sys
+-- All of the out of the box projections postGIS supports
+
+--What's the query for how many projections PostGIS supports (in the chat)
+select count(1)
+from spatial_ref_sys
+
+-- SRID ( Spatial Reference Identifier)
+
+--Proj (4 = 4 means version)
+--Maintains the worlds projections
+
+select *
+from us_states
+limit 3
+
+-- How is the database representing your geometries?
+
+select *
+from cities
+select *
+from spatial_ref_sys
+where srid =4326
+-- GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]
+
+-- What is Minnesota's UTM projection
+select *
+from spatial_ref_sys
+where srid = 26915
+
+-- Check to make sure the SRID is there. QGIS/Arc
+-- Load specifying the correct SRID
+
+-- Make a point
+SELECT ST_GeometryFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+-- Give the function text and turn it into geometry
+
+--Well KNown text
+--Point(-91.3232 42.1212)
+
+'Point('
+-- The Simple Feature type, and starts the container
+
+--Coordinates, with a space
+--Concentating my numbers
+-91.3232 || ' ' || 42.1212
+
+SELECT  -91.3232 || ' '
+-- converted my number into text
+
+SELECT  -91.3232 || ' ' || 42.1212
+
+
+SELECT ST_GeomFromText('Point(' || -91.3232 || ' ' || 42.1212 || ')', 4326)
+-- our SRID 4326
+
+SELECT ST_GeomFromText('Point(' || -93.258133 || ' ' || 44.986656 || ')', 4326) as geom
+-- output is well known binary
+--- Add Minneapolis
+-- 44.986656 -93.258133.
+
+-- Create & Load the Cities CSV
+-- Create TABle (DDL)
+--
+
+CREATE TABLE cities(
+gid smallint,
+x double precision,
+y double precision,
+geomtext text
+);
+--
+\COPY cities from 'C:\git\GIS5577_week5\us_cities_coordinates.csv' WITH CSV HEADER;
+--
+
+select *
+from cities
+limit 20;
+
+-- VIEw all the cities
+SELECT ST_GeomFromText('Point(' || p.x || ' ' || p.y || ')', 4326) as geom, --format this
+ST_GEomFromTExt(geomtext, 4326) as geom2,
+ST_SetSRID(ST_GEomFromTExt(geomtext), 4326) as geom3,
+p.x as x_coord, p.y as y_coord
+FROM cities p --I will do this for every record
+
+
+Geom <-- ST_GeomFromTExt <-- WKT
+GEom(SRID) <-- ST_SRID <-- geom, SRID  
+
+    ST_SRID(ST_GEomFRomTExt('text goes here'), SRID::integer)
+
+GRANT SELECT on ALL TABLES in SCHEMA public TO students;
+GRANT SELECT on ALL SEQUENCES in SCHEMA public TO students;
+
+
+
+
+
+
+
+
+
+
+
