@@ -1,0 +1,98 @@
+WITH county_pop as
+(
+-- Aggregated my population data = COUNTY
+select county_name, county_code, sum(total) as total_population
+-- gis_join_match_code
+from mn_census_tracts_2000_2
+group by county_name, county_code
+-- 87 counties are returned
+), county_pixel as
+(
+-- Aggregated my pixel data = COUNTY
+select county_name, county_code, sum(pixel_count) as total_pixels
+from mn_county_pixel_values
+group by county_name, county_code
+-- 87 counties returned
+)
+SELECT pop.county_code, pop.county_name, pop.total_population, pi.total_pixels,
+pop.total_population / pi.total_pixels as pop_per_pixel
+FROM county_pop pop 
+INNER JOIN county_pixel pi ON (pop.county_code = pi.county_code)
+
+
+
+select *
+from spatial_ref_sys
+WHERE srid IN (4326, 26915, 900913)
+-- 8500 coordinate systems
+
+The UTM coordinateds for MN?
+15N  -- SRID?
+
+-- SRID WEB Mercator?
+
+
+select *
+from geometry_columns
+
+SELECT ST_GeometryFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+-- WKB
+SELECT ST_GeomFromText('POINT(-71.064544 42.28787)');
+
+SELECT 'Dog'
+ 44.986656 -93.258133
+ 
+SELECT (ST_GeomFromText('POINT(-93.258133 44.986656)'), 4326);
+CREATE TABLE minneapolis as 
+SELECT ST_GeometryFromText('Point('|| -93.258133 || ' ' || 44.986656 || ')',4326) as geom
+
+select *
+from minneapolis 
+
+select *
+from geometry_columns
+
+select *
+from minneapolis;
+
+select *
+from us_cities_text;
+
+SELECT ST_GeometryFromText('Point('|| -93.258133 || ' ' || 44.986656 || ')',4326) as geom,
+ST_GeometryFromText(geom_text,4326) as geom_2
+FROM us_cities_text;
+-- Why 1000 points, no longer 1?
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+shp2pgsql -s 4326 -I E:\git\GIS5577\GIS5577_week5\states.shp us_states | psql -h spatialdb.gisandbox.org -p 5432 -d classroom -U david 
+
+
+cd /users/
+./psql
+
+
+
+
+
+
+| psql –h <host > –d <database> -p <port> -U <username>
+
+
+
