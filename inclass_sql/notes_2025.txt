@@ -1,0 +1,258 @@
+Clone this repo
+
+https://github.com/MGIS-UMN/GIS5577_week5
+
+
+
+SELECT *
+FROM spatial_ref_sys
+
+SELECT *
+FROM spatial_ref_sys
+WHERE srid = 4326
+
+
+GEOGCS["WGS 84",DATUM["WGS_1984",SPHEROID["WGS 84",6378137,298.257223563,AUTHORITY["EPSG","7030"]],AUTHORITY["EPSG","6326"]],PRIMEM["Greenwich",0,AUTHORITY["EPSG","8901"]],UNIT["degree",0.0174532925199433,AUTHORITY["EPSG","9122"]],AUTHORITY["EPSG","4326"]]
+
+GEOGCS["WGS 84",
+    DATUM["WGS_1984",
+        SPHEROID["WGS 84",6378137,298.257223563,
+            AUTHORITY["EPSG","7030"]],
+        AUTHORITY["EPSG","6326"]],
+    PRIMEM["Greenwich",0,
+        AUTHORITY["EPSG","8901"]],
+    UNIT["degree",0.0174532925199433,
+        AUTHORITY["EPSG","9122"]],
+    AUTHORITY["EPSG","4326"]]
+
+http://spatialreference.org/ref/epsg/
+
+
+SELECT *
+FROM geometry_columns
+
+SELECT ST_GeometryFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+
+
+https://postgis.net/docs/ST_GeometryFromText.html
+
+Well Known Text: 
+https://libgeos.org/specifications/wkt/
+
+SELECT ST_SETSRID(ST_GeomFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326),4326);
+
+
+SELECT 'SRID=4326; POINT(-91.3232 42.1212)'::geometry
+INTO new_table;
+
+CREATE TABLE new_table as
+SELECT ST_GeometryFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+
+
+What are the steps for loading in the us_cities.csv
+
+
+CREATE TABLE us_cities(
+gid integer ,
+X double precision,
+Y double precision,
+geom_text text
+);
+
+Geometry = WKB
+\COPY us_cities FROM 'C:\School\GIT\GIS5577_week5\us_cities_coordinates.csv' WITH CSV HEADER;
+
+
+Psql -h spatial.healthgeog.org  -U -d 
+
+psql -h spatial.healthgeog.org -d classroom -U dahaynes
+
+
+CREATE TABLE us_cities_dh(
+gid integer ,
+X double precision,
+Y double precision,
+geom_text text
+);
+
+\COPY us_cities_dh FROM F:\git\GIS5577\GIS5577_week5\us_cities_coordinates.csv' WITH CSV HEADER;
+
+SELECT ST_GeomFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+from us_cities_dh
+
+
+SELECT ST_GeomFromText(geom_text,4326)
+from us_cities_dh
+
+SELECT ST_GeomFromText('Point('|| X || ' ' || y || ')',4326)
+from us_cities_dh
+
+
+Create view us_cities_44 as
+SELECT gid, ST_GeomFromText('Point('|| X || ' ' || y || ')',4326) as geom
+from us_cities_dh
+
+
+SELECT gid, ST_GeomFromText('Point('|| X || ' ' || y || ')',4326) as geom
+from us_cities_dh
+ALTER TABLE geom geometry
+UPDATE TABLE 
+SET geom = ST_GeomFromText('Point('|| X || ' ' || y || ')',4326) 
+
+
+
+
+shp2pgsql –I –s <srid> <filepath.shp> <tablename> | psql –h <host > –d <database> -p <port> -U <username>
+
+–I  -- creates a spatial index (good for you)
+–s  -- set the spatial Reference ID (SRID)
+<srid> -- needs to the number in the PostGIS spatial_ref_sys
+--4326 (lat/long)
+<filepath.shp>  -- absolute filepath. Need to get to *.shp
+<tablename>  -- the NEW name of the table you are making
+David_points  (public.table)
+Dh.david_points (schema.table)
+Shp2pgsql -I -s 4326 F:\git\GIS5577\GIS5577_week5\us_cities_4326.shp us_cities_dh_shp
+
+RELEASE: 3.4.2 (3.4.2)
+USAGE: shp2pgsql [<options>] <shapefile> [[<schema>.]<table>]
+OPTIONS:
+  -s [<from>:]<srid> Set the SRID field. Defaults to 0.
+      Optionally reprojects from given SRID.
+ (-d|a|c|p) These are mutually exclusive options:
+     -d  Drops the table, then recreates it and populates
+         it with current shape file data.
+     -a  Appends shape file into current table, must be
+         exactly the same table schema.
+     -c  Creates a new table and populates it, this is the
+         default if you do not specify any options.
+     -p  Prepare mode, only creates the table.
+  -g <geocolumn> Specify the name of the geometry/geography column
+      (mostly useful in append mode).
+  -D  Use postgresql dump format (defaults to SQL insert statements).
+  -e  Execute each statement individually, do not use a transaction.
+      Not compatible with -D.
+  -G  Use geography type (requires lon/lat data or -s to reproject).
+  -k  Keep postgresql identifiers case.
+  -i  Use int4 type for all integer dbf fields.
+  -I  Create a spatial index on the geocolumn.
+  -m <filename>  Specify a file containing a set of mappings of (long) column
+     names to 10 character DBF column names. The content of the file is one or
+     more lines of two names separated by white space and no trailing or
+     leading space. For example:
+         COLUMNNAME DBFFIELD1
+         AVERYLONGCOLUMNNAME DBFFIELD2
+  -S  Generate simple geometries instead of MULTI geometries.
+  -t <dimensionality> Force geometry to be one of '2D', '3DZ', '3DM', or '4D'
+  -w  Output WKT instead of WKB.  Note that this can result in
+      coordinate drift.
+  -W <encoding> Specify the character encoding of Shape's
+      attribute column. (default: "UTF-8")  --LATIN-1
+  -N <policy> NULL geometries handling policy (insert*,skip,abort).
+  -n  Only import DBF file.
+  -T <tablespace> Specify the tablespace for the new table.
+      Note that indexes will still use the default tablespace unless the
+      -X flag is also used.
+  -X <tablespace> Specify the tablespace for the table's indexes.
+      This applies to the primary key, and the spatial index if
+      the -I flag is used.
+  -Z  Prevent tables from being analyzed.
+  -?  Display this help screen.
+
+
+
+shp2pgsql –I –s <srid> <filepath.shp> <tablename> | psql –h <host > –d <database> -p <port> -U <username>
+shp2pgsql 
+-- reads & converts a shapefile into text and WKB that Postgresql can read
+INSERT INTO "us_cities_dh_shp" ("areaname","st","stfips","white","black","ameri_es","asian","hawn_pi","other","hispanic","males","females","age_under5","age_5_17","age_18_21","age_22_29","age_30_39","age_40_49","age_50_64","age_65_up",geom) VALUES ('Juneau','AK','02','22969','248','3496','1438','116','323','1040','15469','15242','2003','6414','1459','2943','5145','6034','4845','1868','0101000020E6100000F1F93A394CD060C0F10B6D30102D4D40');
+
+Shp2pgsql -I -s 4326 F:\git\GIS5577\GIS5577_week5\us_cities_4326.shp us_cities_dh_shp > c:\work\test3.sql
+> c:\work\test3.sql 
+-- saving the output
+
+shp2pgsql –I –s <srid> <filepath.shp> <tablename> | psql –h <host > –d <database> -p <port> -U <username>
+
+Shp2pgsql -I -s 4326 F:\git\GIS5577\GIS5577_week5\us_cities_4326.shp us_cities_dh_shp | psql -h spatial.healthgeog.org -d classroom -p 5432 -U dahaynes
+
+
+ALL NOTES
+
+select *
+from states
+
+SELECT *
+FROM spatial_ref_sys
+
+--SPATIAL REFERENCE SYS
+-- For 8,500 projections
+
+--4326
+
+SELECT *
+FROM spatial_ref_sys
+WHERE srid = 3857
+
+-- 26915 -- UTM ZONE 15N
+
+
+SELECT *
+FROM geometry_columns
+
+
+SELECT ST_SETSRID(ST_GeomFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326),4326);
+
+
+POINT(0 0)
+	
+SELECT ST_GeomFromText('LINESTRING(-71.160281 42.258729,-71.160837 42.259113,-71.161144 42.25932)',4326);
+
+
+SELECT 'SRID=4326; POINT(-91.3232 42.1212)'::geometry
+
+
+SELECT *
+FROM states
+
+SELECT *
+FROM states
+
+
+
+SELECT 'SRID=4326; POINT(-91.3232 42.1212)'::geometry
+into dh_point;
+
+SELECT ST_GeomFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+into dh_point2
+
+
+select *
+from geometry_columns
+
+CREATE TABLE us_cities_dh(
+gid integer ,
+X double precision,
+Y double precision,
+geom_text text
+);
+
+select *
+from us_cities_dh
+
+
+SELECT ST_GeomFromText('Point('|| -91.3232 || ' ' || 42.1212 || ')',4326)
+from us_cities_dh
+-- IMmediately i have 3557 points in the same place
+
+SELECT ST_GeomFromText(geom_text,4326)
+from us_cities_dh
+-- Copy past the geom_Text field-- basically
+
+
+SELECT ST_GeomFromText('Point('|| X || ' ' || y || ')',4326)
+from us_cities_dh
+
+
+
+
+
+
