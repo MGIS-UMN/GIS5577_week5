@@ -16,6 +16,7 @@ This dataset is in the WGS84 project 4326. You can find data in the classroom da
 ### ```us_cities_coordinates.csv```
 This dataset is in WGS84 projection 4326. You can find data in the classroom database: cities_txt_4326
 
-
-
-
+Reference materials
+[Shp2pgsql Cheet Sheet](https://www.bostongis.com/pgsql2shp_shp2pgsql_quickguide.bqg)
+[Spatial Reference Org](https://spatialreference.org/)
+[EPSG.IO](https://epsg.io/)
